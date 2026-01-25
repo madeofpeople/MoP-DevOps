@@ -3,6 +3,17 @@ localhost {
     log
 }
 
-madeofpeople.org, work.madeofpeople.org, cloud.madeofpeople.org {
+# Static Site - web
+itztlacoliuhqui.org, staging.itztlacoliuhqui.org, dev.itztlacoliuhqui.org {
     reverse_proxy web:80
+}
+
+# Wordpress - wp
+contentstaging.itztlacoliuhqui.org {
+    reverse_proxy wp
+}
+
+# PHP MyAdmin - pma
+pma.itztlacoliuhqui.org {
+    reverse_proxy pma
 }

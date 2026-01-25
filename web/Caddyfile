@@ -4,17 +4,38 @@
 	}
 }
 
-http://madeofpeople.org {
-	root /srv/madeofpeople.org/static/
+http://itztlacoliuhqui.org {
+	tls thiago@madeofpeople.org
+	root /srv/production/
 	file_server
+    templates
+	encode zstd gzip
+	handle_errors {
+    	rewrite * /404.html
+    	file_server
+  	}
 }
 
-http://cloud.madeofpeople.org {
-	root /srv/cloud.madeofpeople.org/static/
+http://dev.itztlacoliuhqui.org {
+	tls thiago@madeofpeople.org
+	root /srv/development/
 	file_server
+    templates
+	encode zstd gzip
+	handle_errors {
+    	rewrite * /404.html
+    	file_server
+  	}
 }
 
-http://work.madeofpeople.org {
-	root /srv/work.madeofpeople.org/static/
+http://staging.itztlacoliuhqui.org {
+	tls thiago@madeofpeople.org
+	root /srv/staging/
 	file_server
+    templates
+	encode zstd gzip
+	handle_errors {
+    	rewrite * /404.html
+    	file_server
+  	}
 }

@@ -1,36 +1,112 @@
-version: '3'
 services:
   proxy:
-    image: caddy:2.11-alpine
+    image: caddy:2.11
     container_name: proxy
     depends_on:
       - web
+      - wp_staging
     restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - $PWD/proxy/Caddyfile:/etc/caddy/Caddyfile
+      - ${PROXY_CADDYFILE}:/etc/caddy/Caddyfile
       - proxy_data:/data
       - proxy_config:/config
     networks:
-      - mopnet
+      - net_web
+      - net_internal
   web:
-    image: caddy:2.11-alpine
+    image: caddy:2.11
     container_name: web
     restart: unless-stopped
     volumes:
-      - $PWD/web/Caddyfile:/etc/caddy/Caddyfile
-      - $PWD/web/:/srv/
+      - ${STATIC_SERVER_CADDYFILE}/etc/caddy/Caddyfile
+      - ${STATIC_SERVER_SITES}:/srv/
       - web_data:/data
       - web_config:/config
     networks:
-      - mopnet
+      - net_web
+  wp_staging:
+    image: wpeverywhere/frankenwp:latest-php8.2
+    container_name: wp_staging
+    restart: always
+    ports:
+      - "8100:80"
+    environment:
+      SERVER_NAME: ${WP_SERVER_NAME:-:80}
+      WORDPRESS_DB_HOST: ${WP_DB_HOST:-db}
+      WORDPRESS_DB_USER: ${WP_DB_USER:-exampleuser}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-examplepass}
+      WORDPRESS_DB_NAME: ${WP_DB_NAME:-exampledb}
+      WORDPRESS_DEBUG: ${WP_DEBUG:-true}
+      WORDPRESS_TABLE_PREFIX: ${WP_DB_TABLE_PREFIX:-wp_}
+      CACHE_LOC: ${WP_CACHE_LOC:-/var/www/html/wp-content/cache}
+      TTL: ${TTL:-80000}
+      PURGE_PATH: ${PURGE_PATH:-/__cache/purge}
+      PURGE_KEY: ${PURGE_KEY:-}
+      BYPASS_HOME: ${BYPASS_HOME:-false}
+      BYPASS_PATH_PREFIXES: ${WP_BYPASS_PATH_PREFIXES:-/wp-admin,/wp-content,/wp-includes,/wp-json,/feed}
+      CACHE_RESPONSE_CODES: ${CACHE_RESPONSE_CODES:-000}
+      CADDY_GLOBAL_OPTIONS: |
+        email ${EMAIL}
+        frankenphp {
+          php_ini upload_max_filesize 100M  # Set PHP configuration
+          php_ini post_max_size 100M
+        }
+      WORDPRESS_CONFIG_EXTRA: |
+       define('WP_SITEURL', 'https://contentstaging.itztlacoliuhqui.org');
+       define('WP_HOME', 'https://contentstaging.itztlacoliuhqui.org');
+    volumes:
+      - ${WP_STAGING_WPCONTENT}:/var/www/html/wp-content
+      - ${WP_STAGING_COMPOSERJSON}:/var/www/html/wp-content/composer.json
+      - ${WP_STAGING_POSTSTART}:/var/www/html/wp-content/post_start.sh
+      - ./wp/phpinfo.php:/var/www/html/phpinfo.php
+    post_start:
+      - command: /var/www/html/post_start.sh
+        user: root
+    depends_on:
+      - mariadb
+    tty: true
+    networks:
+      - net_web
+      - net_internal
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    ports:
+      - ${WP_LOCAL_DB_PORT:-3309}:3306
+    environment:
+      MYSQL_DATABASE: ${WP_DB_NAME:-exampledb}
+      MYSQL_USER: ${WP_DB_USER:-exampleuser}
+      MYSQL_PASSWORD: ${WP_DB_PASSWORD:-examplepass}
+      MYSQL_ROOT_PASSWORD: ${WP_DB_ROOT_PASSWORD:-examplepass}
+    volumes:
+      - wp_dbv:/var/lib/mysql
+    networks:
+      - net_internal
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    restart: always
+    ports:
+      - ${LOCAL_PHPMYADMIN_PORT:-8096}:80
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: ${WP_DB_ROOT_PASSWORD:-examplepass}
+    depends_on:
+      - mariadb
+    networks:
+      - net_web
+      - net_internal
 volumes:
+  wp_dbv: {}
   proxy_data: {}
   proxy_config: {}
   web_data: {}
   web_config: {}
 networks:
-  mopnet:
+  net_internal:
+  net_web:
     driver: bridge

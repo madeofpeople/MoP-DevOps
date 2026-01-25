@@ -1,0 +1,40 @@
+tmp
+
+# Static site builds to be served via caddy 
+# Gets populated by separate workflow
+web/static/*
+
+# sources directory, holds 
+deployment/sources/
+
+# Secrets
+.env
+
+# node dependencies and output
+node_modules/
+build/
+dist/
+
+# Wordpress
+# Anything in here should probably be in a separate repo.
+# And installed using composer with wpackagist, or git
+wp/**/wp-content/
+
+#mac
+.DS_Store
+
+#logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
