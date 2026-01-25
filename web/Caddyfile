@@ -7,14 +7,19 @@
 http://madeofpeople.org {
 	root /srv/madeofpeople.org/static/
 	file_server
+	encode zstd gzip
+	
 }
 
 http://cloud.madeofpeople.org {
 	root /srv/cloud.madeofpeople.org/static/
 	file_server
+	encode zstd gzip
 }
 
 http://work.madeofpeople.org {
 	root /srv/work.madeofpeople.org/static/
 	file_server
+	templates
+	encode zstd gzip
 }

@@ -1,1 +1,11 @@
-work.madeofpeople.org/index.html
+{{$markdownFile := (include "/markdown/homepage.md" | splitFrontMatter)}}
+{{$title := $markdownFile.Meta.title}}
+
+<!Doctype html>
+<html>
+    <body> 
+        <h1>Hello {{$title}} {{$markdownFile.Meta.version}}</h1>
+        <p>Testing</p>
+        <p>{{ markdown $markdownFile.Body }}</p>
+    </body>
+</html>
