@@ -1,0 +1,20 @@
+{
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+http://madeofpeople.org {
+	root /srv/madeofpeople.org/static/
+	file_server
+}
+
+http://cloud.madeofpeople.org {
+	root /srv/cloud.madeofpeople.org/static/
+	file_server
+}
+
+http://work.madeofpeople.org {
+	root /srv/work.madeofpeople.org/static/
+	file_server
+}

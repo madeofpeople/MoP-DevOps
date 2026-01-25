@@ -1,0 +1,8 @@
+localhost {
+    respond "Hello, World. I don't believe this but it works"
+    log
+}
+
+madeofpeople.org, work.madeofpeople.org, cloud.madeofpeople.org {
+    reverse_proxy web:80
+}

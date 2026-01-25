@@ -1,0 +1,36 @@
+version: '3'
+services:
+  proxy:
+    image: caddy:2.11-alpine
+    container_name: proxy
+    depends_on:
+      - web
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - $PWD/proxy/Caddyfile:/etc/caddy/Caddyfile
+      - proxy_data:/data
+      - proxy_config:/config
+    networks:
+      - mopnet
+  web:
+    image: caddy:2.11-alpine
+    container_name: web
+    restart: unless-stopped
+    volumes:
+      - $PWD/web/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/web/:/srv/
+      - web_data:/data
+      - web_config:/config
+    networks:
+      - mopnet
+volumes:
+  proxy_data: {}
+  proxy_config: {}
+  web_data: {}
+  web_config: {}
+networks:
+  mopnet:
+    driver: bridge
