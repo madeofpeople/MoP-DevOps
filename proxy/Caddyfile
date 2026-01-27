@@ -6,3 +6,7 @@ localhost {
 madeofpeople.org, work.madeofpeople.org, cloud.madeofpeople.org {
     reverse_proxy web:80
 }
+
+data.madeofpeople.org {
+    reverse_proxy wp:8100
+}
