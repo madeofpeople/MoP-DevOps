@@ -10,7 +10,7 @@ itztlacoliuhqui.org, staging.itztlacoliuhqui.org, dev.itztlacoliuhqui.org {
 
 # Wordpress - wp
 contentstaging.itztlacoliuhqui.org {
-    reverse_proxy wp
+    reverse_proxy wp_staging
 }
 
 # PHP MyAdmin - pma

@@ -3,6 +3,9 @@
 cd "$(dirname "$0")"
 cd ..
 
+# Ensure were using the right version of node…
+PATH="/home/madeofpeople/.nvm/versions/node/v25.5.0/bin:/usr/bin"
+
 if [ -z "${-%%*a*}" ]; then
     set -a
     . ./.env
@@ -11,18 +14,21 @@ else
     . ./.env
 fi
 
-
 NODEV=$(node -v)
 YARNV=$(yarn -v)
 PWD=$(pwd)
 
-echo $SITE_NAME
-echo $PWD
-exit 1
-
-build () {
-	yarn install
-	yarn $1
+build() {
+    mkdir tmp
+    cp ../.env ./.env
+    git --work-tree=./tmp --git-dir=$1 checkout -f $2
+    cd tmp    
+    yarn install
+    BUILD_MODE=$2
+    BUILD_PATH=$3
+    yarn run astro build
+    cd ../
+    rm -rf tmp
 }
 
 while read oldrev newrev ref
@@ -33,34 +39,29 @@ do
     else
         if [ "$ref" = "refs/heads/production" ]; then
             BRANCH="production"
-            CMD="build"
+            BUILD_PATH=DEV_BUILD_PATH
         elif [ "$ref" = "refs/heads/staging" ]; then
             BRANCH="staging"
-            CMD="build-staging"
+            BUILD_PATH=STAGING_BUILD_PATH
         elif [ "$ref" = "refs/heads/development" ]; then
             BRANCH="development"
-            CMD="build-dev"
+            BUILD_PATH=PRODUCTION_BUILD_PATH
         else
             echo "Ref ($ref) doesnt match production, staging, or development, exisitng."
             exit 1
         fi
-
-        echo "░▒▓███████▓▒░░▒▓████████▓▒░▒▓███████▓▒░░▒▓█▓▒░      ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░"
-        echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░"
-        echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░"
-        echo "░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░ ░▒▓███████▓▒░░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░"
-        echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░"
-        echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░"
-        echo "░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░      ░▒▓████████▓▒░▒▓██████▓▒░   ░▒▓█▓▒░"
-        echo "-------------------------------------------------------------------------------"
+        echo "░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
+        echo "░█▀▄░█▀▀░█░░░█▀█░█▀█░█░█░▀█▀░█▀█░█▀▀░░░█▀▀░▀█▀░▀█▀░█▀▀"
+        echo "░█░█░█▀▀░█░░░█▀▀░█░█░░█░░░█░░█░█░█░█░░░▀▀█░░█░░░█░░█▀▀"
+        echo "░▀▀░░▀▀▀░▀▀▀░▀░░░▀▀▀░░▀░░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░░▀░░▀▀▀"
+        echo "░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
         echo "Running deployment script for ${SITE_NAME}"
-        echo "Git directory: ${GIT_DIR} | Ref: ${ref} | Branch: ${BRANCH}"
+        echo "Git directory: ${GIT_DIR}"
+        echo "Ref: ${ref} | Branch: ${BRANCH}"
         echo "PWD: ${PWD} | Build command: ${CMD}"
         echo "Node version: ${NODEV}, Yarn version ${YARNV}"
-        echo "-------------------------------------------------------------------------------"
-        git --work-tree=$ASTRO_SOURCE --git-dir=$GIT_DIR checkout -f $BRANCH
-        cd $ASTRO_SOURCE
-        build $CMD
+        echo "------------------------------------------------------"
+        build $GIT_DIR $BRANCH $BUILD_PATH
         exit 0
     fi
 done

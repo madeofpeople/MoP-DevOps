@@ -21,8 +21,8 @@ services:
     container_name: web
     restart: unless-stopped
     volumes:
-      - ${STATIC_SERVER_CADDYFILE}/etc/caddy/Caddyfile
-      - ${STATIC_SERVER_SITES}:/srv/
+      - ${STATIC_SERVER_CADDYFILE}:/etc/caddy/Caddyfile
+      - ${STATIC_SERVER_SITE_DIR}:/srv/
       - web_data:/data
       - web_config:/config
     networks:

@@ -2,6 +2,9 @@
 
 cd "$(dirname "$0")"
 cd ..
+PWD=$(pwd)
+echo $PWD
+echo '---'
 
 # Reads .env files (from the basedirectory of the bare repo running the hook)
 if [ -z "${-%%*a*}" ]; then
@@ -14,6 +17,9 @@ fi
 
 NODEV=$(node -v)
 YARNV=$(yarn -v)
+
+echo $SITE_NAME
+exit 1
 
 build () {
 	yarn install
@@ -52,7 +58,8 @@ do
         echo "-------------------------------------------------------------------------------"
         echo "Running deployment script for ${SITE_NAME}"
         echo "-------------------------------------------------------------------------------"
-        cd $ASTRO_SOURCE
+        exit. 1
+#        cd $ASTRO_SOURCE
         git --work-tree=$PLUGIN_SOURCE --git-dir=$GIT_DIR checkout -f $BRANCH
         build $CMDt
         exit 0
