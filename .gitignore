@@ -1,26 +1,24 @@
 tmp
+cache
+node_modules/
+build/
+dist/
 
 # Static site builds to be served via caddy 
 # Gets populated by separate workflow
 web/static/*
 
 # sources directory, holds 
-deployment/sources/
+sources/
 
 # Secrets
 .env
 
-# node dependencies and output
-node_modules/
-build/
-dist/
-
 # Wordpress
-# Anything in here should probably be in a separate repo.
-# And installed using composer with wpackagist, or git
-wp/**/wp-content/
+# Anything in here should be in a separate repo and installed using composer with git or wpackagist.
+wp/staging/plugins/
 
-#mac
+#mac crap
 .DS_Store
 
 #logs
@@ -38,3 +36,7 @@ lerna-debug.log*
 
 # Optional stylelint cache
 .stylelintcache
+
+#FrankenWP
+.tmp
+.air.toml

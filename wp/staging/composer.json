@@ -1,0 +1,54 @@
+{
+    "name": "abcnorio/site-functionality",
+    "version": "1.0.0",
+    "description": "wp dependencies",
+    "minimum-stability": "dev",
+    "config": {
+        "allow-plugins": {
+            "madeofpeople/*": true,
+            "automattic/*": true,
+            "composer/installers": true,
+            "wpackagist-plugin/advanced-custom-fields": true,
+            "wpackagist-plugin/login-as-user": true,
+            "wpackagist-plugin/cds-simple-seo": true,
+            "wpackagist-plugin/white-label-cms": true
+        }
+    },
+    "repositories": [
+        {
+            "name": "wpackagist",
+            "type": "composer",
+            "url": "https://wpackagist.org"
+        },
+        {   
+            "type": "vcs",
+            "url": "/etc/abcnorio.org/abcnorio-custom-bones/"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "automattic/vip-block-data-api",
+                "version": "1.4.7",
+                "type": "wordpress-plugin",
+                "source": {
+                    "url": "https://github.com/Automattic/vip-block-data-api.git",
+                    "type": "git",
+                    "reference": "1.4.7"
+                }
+            }
+        }
+    ],
+    "require": {
+        "wpackagist-plugin/advanced-custom-fields": "^6.7",
+        "wpackagist-plugin/login-as-user": "^1.6.8",
+        "wpackagist-plugin/cds-simple-seo": "^2.0",
+        "wpackagist-plugin/white-label-cms": "^2.7.8",
+        "automattic/vip-block-data-api": "^1.4",
+        "madeofpeople/abcnorio-custom-bones": "dev-main"
+    },
+    "extra": {
+        "installer-paths": {
+            "/var/www/html/wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
+        }
+    }
+}

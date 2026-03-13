@@ -39,3 +39,17 @@ http://staging.itztlacoliuhqui.org {
     	file_server
   	}
 }
+
+http://ziv-jhurs-355.itztlacoliuhqui.org {
+	tls thiago@madeofpeople.org
+	root /srv/zivjhurs355/
+	try_files {path}.html
+	file_server
+	encode zstd gzip
+	templates
+	handle_errors {
+    	rewrite * /error.html
+		templates
+    	file_server
+  	}
+}

@@ -1,0 +1,25 @@
+# Define build arguments that can be overridden at build time
+ARG WORDPRESS_VERSION=latest
+ARG PHP_VERSION=8.4
+ARG DEBIAN_VERSION=trixie
+
+# First stage: builder - used to build FrankenPHP with custom modules
+FROM ghcr.io/notglossy/frankenpress:php-${PHP_VERSION}-${DEBIAN_VERSION}
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	libvips42 \
+	&& install-php-extensions ffi \
+	&& rm -rf /var/cache/apt/archives \
+	&& 	rm -rf /var/lib/apt/lists/*
+
+ADD https://github.com/notglossy/vips-image-editor-ffi/releases/download/v3.0.0/vips-image-editor-ffi-3.0.0.zip /tmp/vips-image-editor-ffi.zip
+RUN unzip /tmp/vips-image-editor-ffi.zip -d /usr/src/wordpress/wp-content/plugins/ \
+	&& rm -rf /tmp/vips-image-editor-ffi.zip \
+	&& echo 'zend.max_allowed_stack_size=-1' >> /usr/local/etc/php/conf.d/stack-size.ini \
+	&& echo 'ffi.enable=true' >> /usr/local/etc/php/conf.d/docker-php-ext-ffi.ini
+
+USER www-data
+ENTRYPOINT ["/usr/local/bin/wp_staging-entrypoint.sh"]
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

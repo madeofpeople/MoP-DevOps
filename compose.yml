@@ -1,14 +1,14 @@
 services:
   proxy:
-    image: caddy:2.11
+    image: caddy:2.11-alpine
     container_name: proxy
     depends_on:
       - web
       - wp_staging
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
       - ${PROXY_CADDYFILE}:/etc/caddy/Caddyfile
       - proxy_data:/data
@@ -17,7 +17,7 @@ services:
       - net_web
       - net_internal
   web:
-    image: caddy:2.11
+    image: caddy:2.11-alpine
     container_name: web
     restart: unless-stopped
     volumes:
@@ -28,11 +28,12 @@ services:
     networks:
       - net_web
   wp_staging:
-    image: wpeverywhere/frankenwp:latest-php8.2
+    image: notglossy/frankenpress:php-8.4-vips-ffi-trixie
+    build: /home/madeofpeople/abcnorio.org/wp/staging/
     container_name: wp_staging
     restart: always
     ports:
-      - "8100:80"
+      - 8100:80
     environment:
       SERVER_NAME: ${WP_SERVER_NAME:-:80}
       WORDPRESS_DB_HOST: ${WP_DB_HOST:-db}
@@ -55,16 +56,12 @@ services:
           php_ini post_max_size 100M
         }
       WORDPRESS_CONFIG_EXTRA: |
-       define('WP_SITEURL', 'https://contentstaging.itztlacoliuhqui.org');
-       define('WP_HOME', 'https://contentstaging.itztlacoliuhqui.org');
+       define('WP_SITEURL', '${WP_STAGING_URL}');
+       define('WP_HOME', '${WP_STAGING_URL}');
     volumes:
-      - ${WP_STAGING_WPCONTENT}:/var/www/html/wp-content
-      - ${WP_STAGING_COMPOSERJSON}:/var/www/html/wp-content/composer.json
-      - ${WP_STAGING_POSTSTART}:/var/www/html/wp-content/post_start.sh
-      - ./wp/phpinfo.php:/var/www/html/phpinfo.php
-    post_start:
-      - command: /var/www/html/post_start.sh
-        user: root
+      - ${WP_STAGING_PLUGINS}
+      - ${WP_STAGING_COMPOSER}
+      - ${WP_STAGING_DOCKER_ENTRYPOINT}
     depends_on:
       - mariadb
     tty: true
@@ -83,7 +80,7 @@ services:
       MYSQL_PASSWORD: ${WP_DB_PASSWORD:-examplepass}
       MYSQL_ROOT_PASSWORD: ${WP_DB_ROOT_PASSWORD:-examplepass}
     volumes:
-      - wp_dbv:/var/lib/mysql
+      - wp_staging_dbv:/var/lib/mysql
     networks:
       - net_internal
   phpmyadmin:
@@ -101,7 +98,7 @@ services:
       - net_web
       - net_internal
 volumes:
-  wp_dbv: {}
+  wp_staging_dbv: {}
   proxy_data: {}
   proxy_config: {}
   web_data: {}
